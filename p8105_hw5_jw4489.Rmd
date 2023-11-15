@@ -33,9 +33,38 @@ view(df1)
 ```{r}
 df1_summarized = df1 |>
   group_by(city_state) |>
-  summarize(total_homocides = n(),
+  summarize(total_homicides = n(),
              unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")))
 
 df1_summarized
 ```
+
+##### Estimate the proportion of homicides that are unsolve.
+
+```{r}
+baltimore_prop_test = 
+  prop.test(df1_summarized |>
+            filter(city_state == "Baltimore, MD") |>
+            pull(unsolved_homicides),
+            df1_summarized |>
+            filter(city_state == "Baltimore, MD") |>
+            pull(total_homicides))
+
+baltimore_tidy = baltimore_prop_test |>
+  broom::tidy()
+
+baltimore_tidy
+```
+
+```{r}
+estimate = baltimore_tidy |>
+  pull(estimate)
+conf_low = baltimore_tidy |>
+  pull(conf.low)
+conf_high = baltimore_tidy |>
+  pull(conf.high)
+```
+
+Hence the estimated proportion is `r estimate`, and the confidence interval is (`r conf_low`, `r conf_high`).
+
 
