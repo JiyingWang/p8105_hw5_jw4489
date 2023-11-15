@@ -3,3 +3,39 @@ title: "p8105_hw5_jw4489"
 output: github_document
 date: "2023-11-15"
 ---
+
+```{r, message = FALSE}
+library(tidyverse)
+library(rvest)
+
+```
+
+## Problem 1
+
+##### Describe the raw data.
+
+```{r}
+raw_df1 = read.csv("hw5data/homicide-data.csv")
+
+view(raw_df1)
+```
+
+According to the raw data, we can see that it has `r nrow(raw_df1)` observations, and `r ncol(raw_df1)` variables in total.
+
+```{r}
+df1 = raw_df1 |> 
+  janitor::clean_names() |> 
+  mutate(city_state = paste(city, state, sep = ", "))
+
+view(df1)
+```
+
+```{r}
+df1_summarized = df1 |>
+  group_by(city_state) |>
+  summarize(total_homocides = n(),
+             unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")))
+
+df1_summarized
+```
+
