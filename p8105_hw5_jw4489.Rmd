@@ -12,7 +12,7 @@ library(rvest)
 
 ## Problem 1
 
-##### Describe the raw data.
+##### Describe the raw data
 
 ```{r}
 raw_df1 = read.csv("hw5data/homicide-data.csv")
@@ -39,7 +39,7 @@ df1_summarized = df1 |>
 df1_summarized
 ```
 
-##### Estimate the proportion of homicides that are unsolve.
+##### Estimate the proportion of homicides that are unsolve
 
 ```{r}
 baltimore_prop_test = 
@@ -66,5 +66,36 @@ conf_high = baltimore_tidy |>
 ```
 
 Hence the estimated proportion is `r estimate`, and the confidence interval is (`r conf_low`, `r conf_high`).
+
+##### Run prop.test for each of the cities in the dataset
+
+```{r}
+all_city_test = df1_summarized |>
+  janitor::clean_names() |>
+  mutate(prop_test_all = purrr::map2(unsolved_homicides, total_homicides, \(x, y) prop.test(x = x, n = y)),
+         prop_test_tidy = purrr::map(prop_test_all, broom::tidy)) |> 
+  select(- prop_test_all) |>
+  unnest(prop_test_tidy) |>
+  janitor::clean_names() |>
+  select(city_state, estimate, conf_low, conf_high) |>
+  mutate(city_state = fct_reorder(city_state, estimate))
+
+all_city_test
+```
+
+##### Create the plot
+
+```{r}
+test_plot = all_city_test |>
+  ggplot(aes(x = city_state, y = estimate)) + 
+  geom_errorbar(aes(ymin = conf_low, ymax = conf_high)) +
+  geom_point() +
+  labs(title = "Estimates and CIs for each city",
+       x = "City, State",
+       y = "Proportion of Unsolved Homicides") +
+  theme(axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
+
+test_plot
+```
 
 
