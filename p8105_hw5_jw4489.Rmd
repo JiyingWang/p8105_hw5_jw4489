@@ -129,7 +129,26 @@ df2_tidy = df2 |>
 df2_tidy 
 ```
 
-```{r}
+##### Make the spaghetti plot
 
+```{r}
+df2_plot = df2_tidy |>
+  ggplot(aes(x = week, y = observations, color = arm)) +
+  geom_line() +
+  facet_wrap(~ subject_id) +
+  labs(title = "Observations on each subject over time",
+       x = "Week",
+       y = "Value of Observations")
+
+df2_plot
 ```
+
+According to the plots generated, we can see that, the experimental group shows an increasing pattern overall, but the controlled group doesn't have any trends or patterns. Besides, we can also conclude that for most of the participants, the experimental group tends to have higher values than the controlled group. 
+
+
+
+
+
+
+
 
