@@ -7,7 +7,10 @@ date: "2023-11-15"
 ```{r, message = FALSE}
 library(tidyverse)
 library(rvest)
-
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(broom)
 ```
 
 ## Problem 1
@@ -98,4 +101,35 @@ test_plot = all_city_test |>
 test_plot
 ```
 
+## Problem 2
+
+##### Create a tidy dataframe containing data from all participants
+
+```{r}
+file_names = list.files("./hw5data/hw5p2", pattern = "*.csv")
+```
+
+```{r}
+df2 = data.frame(file_names = file_names) |>
+  mutate(data = map(file_names, ~read.csv(paste0("./hw5data/hw5p2", "/", .x)))) |>
+  unnest(data) 
+```
+
+```{r}
+df2_tidy = df2 |>
+  mutate(subject_id = str_extract(file_names, "\\d+"),
+         arm = str_extract(file_names, "^[a-z]*")) |>
+  select(- file_names) |>
+  select(subject_id, arm, everything()) |>
+  pivot_longer(cols = starts_with("week_"),
+               names_to = "week",
+               values_to = "observations") |>
+  mutate(week = as.numeric(substr(week, 6, 7)))
+
+df2_tidy 
+```
+
+```{r}
+
+```
 
